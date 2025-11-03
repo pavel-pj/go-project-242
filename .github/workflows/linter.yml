@@ -31,9 +31,9 @@ jobs:
         echo "Binary size: $(du -h bin/hexlet-path-size | cut -f1)"
 
     - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v3
+      uses: golangci/golangci-lint-action@v4
       with:
-        version: v1.54
+        version: latest  # ← а вот это должно быть исправлением
         args: --timeout=5m
 
     - name: Upload artifact
