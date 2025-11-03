@@ -1,2 +1,4 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/pavel-pj/go-project-242/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/pavel-pj/go-project-242/actions)
+
+## 03.11.2020
