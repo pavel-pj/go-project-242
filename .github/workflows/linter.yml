@@ -12,10 +12,10 @@ jobs:
  
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v6
       with:
         go-version: '1.25.3'
         cache: true
@@ -30,10 +30,10 @@ jobs:
         file bin/hexlet-path-size
         echo "Binary size: $(du -h bin/hexlet-path-size | cut -f1)"
 
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v4
+    - name: lint
+      uses: golangci/golangci-lint-action@v8
       with:
-        version: latest  # ← а вот это должно быть исправлением
+        version: v2.1
         args: --timeout=5m
 
     - name: Upload artifact
