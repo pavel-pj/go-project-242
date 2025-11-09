@@ -36,6 +36,7 @@ jobs:
       with:
         version: v2.1
         args: --timeout=5m
+ 
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
