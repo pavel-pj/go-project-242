@@ -30,6 +30,10 @@ jobs:
         file bin/hexlet-path-size
         echo "Binary size: $(du -h bin/hexlet-path-size | cut -f1)"
 
+    - name: Test
+      run: |
+        make test
+        echo "✅ Tests completed"
 
     - name: lint
       uses: golangci/golangci-lint-action@v8

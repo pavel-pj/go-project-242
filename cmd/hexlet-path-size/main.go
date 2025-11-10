@@ -20,7 +20,7 @@ func main() {
 			log.Fatal(err)
 		}
 	*/
-	size, err := si.GetSize("/tmp/dir200")
+	size, err := si.GetSize("/var/www/go1/proj1/go-project-242/testdata/dir200")
 	//size, err := si.GetSize("/tmp/file2.pdf")
 	if err != nil {
 		fmt.Println(err)

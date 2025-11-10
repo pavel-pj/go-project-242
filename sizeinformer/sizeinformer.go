@@ -8,9 +8,10 @@ import (
 )
 
 func GetSize(path string) (string, error) {
+
 	file, err := os.Lstat(path)
 	if err != nil {
-		return "", fmt.Errorf("Невозможно открыть файл : %q", path)
+		return "", fmt.Errorf("невозможно открыть файл : %q", path)
 	}
 
 	if !file.IsDir() {
@@ -20,7 +21,7 @@ func GetSize(path string) (string, error) {
 
 	dirSize, err := getDirSize(path)
 	if err != nil {
-		return "", fmt.Errorf("Ошибка обхода директории : %q", path)
+		return "", fmt.Errorf("ошибка обхода директории : %q", path)
 	}
 	dirSizeInfo := formatFileSize(dirSize)
 	return fmt.Sprintf("%s	%s\n", dirSizeInfo, path), nil
@@ -39,9 +40,9 @@ func formatFileSize(size int64) string {
 	case size > GB:
 		return fmt.Sprintf("%0.fGB", float64(size)/float64(GB))
 	case size > MB:
-		return fmt.Sprintf("%0.fMB", float64(size)/float64(MB))
+		return fmt.Sprintf("%0.1fMB", float64(size)/float64(MB))
 	case size > KB:
-		return fmt.Sprintf("%0.fKB", float64(size)/float64(KB))
+		return fmt.Sprintf("%0.1fKB", float64(size)/float64(KB))
 	default:
 		return fmt.Sprintf("%dB", size)
 	}

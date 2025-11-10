@@ -1,5 +1,7 @@
 .PHONY: lint start build
 
+test:
+	 go test ./... 
 lint:
 	golangci-lint run
 start:

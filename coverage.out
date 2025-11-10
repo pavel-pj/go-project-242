@@ -1,0 +1,23 @@
+mode: set
+code/cmd/hexlet-path-size/main.go:8.13,25.16 2 0
+code/cmd/hexlet-path-size/main.go:25.16,27.3 1 0
+code/cmd/hexlet-path-size/main.go:28.2,28.19 1 0
+code/sizeinformer/sizeinformer.go:10.43,13.16 2 1
+code/sizeinformer/sizeinformer.go:13.16,15.3 1 1
+code/sizeinformer/sizeinformer.go:17.2,17.19 1 1
+code/sizeinformer/sizeinformer.go:17.19,20.3 2 1
+code/sizeinformer/sizeinformer.go:22.2,23.16 2 1
+code/sizeinformer/sizeinformer.go:23.16,25.3 1 0
+code/sizeinformer/sizeinformer.go:26.2,27.55 2 1
+code/sizeinformer/sizeinformer.go:31.40,39.9 2 1
+code/sizeinformer/sizeinformer.go:40.17,41.58 1 0
+code/sizeinformer/sizeinformer.go:42.17,43.59 1 1
+code/sizeinformer/sizeinformer.go:44.17,45.59 1 1
+code/sizeinformer/sizeinformer.go:46.10,47.34 1 1
+code/sizeinformer/sizeinformer.go:51.45,54.86 2 1
+code/sizeinformer/sizeinformer.go:54.86,56.17 1 1
+code/sizeinformer/sizeinformer.go:56.17,58.4 1 0
+code/sizeinformer/sizeinformer.go:60.3,60.20 1 1
+code/sizeinformer/sizeinformer.go:60.20,62.4 1 1
+code/sizeinformer/sizeinformer.go:64.3,64.13 1 1
+code/sizeinformer/sizeinformer.go:68.2,68.23 1 1
