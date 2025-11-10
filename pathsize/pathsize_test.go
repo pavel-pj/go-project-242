@@ -1,7 +1,6 @@
-package sizeinformer
+package pathsize
 
 import (
-	"fmt"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -14,37 +13,40 @@ func TestGetSize(t *testing.T) {
 	currentDir := getTestDataPath()
 
 	cases := []struct {
-		name, want string
-		hasError   bool
+		name     string
+		want     int64
+		hasError bool
 	}{
 		{
 			name:     "test_B.txt",
-			want:     fmt.Sprintf("5B\t%s/test_B.txt\n", currentDir),
+			want:     5,
 			hasError: false,
 		},
+
 		{
 			name:     "test_KB.txt",
-			want:     fmt.Sprintf("246.7KB\t%s/test_KB.txt\n", currentDir),
+			want:     252570,
 			hasError: false,
 		},
+
 		{
 			name:     "file1.pdf",
-			want:     fmt.Sprintf("4.1MB\t%s/file1.pdf\n", currentDir),
+			want:     4307732,
 			hasError: false,
 		},
 		{
 			name:     "test_MB.pdf",
-			want:     fmt.Sprintf("31.9MB\t%s/test_MB.pdf\n", currentDir),
+			want:     33478607,
 			hasError: false,
 		},
 		{
 			name:     "dir200",
-			want:     fmt.Sprintf("36.3MB\t%s/dir200\n", currentDir),
+			want:     38038914,
 			hasError: false,
 		},
 		{
 			name:     "f",
-			want:     "",
+			want:     0,
 			hasError: true,
 		},
 	}
@@ -62,7 +64,7 @@ func TestGetSize(t *testing.T) {
 
 			} else {
 				require.NoError(t, err)
-				require.Equal(t, got, r.want)
+				require.Equal(t, r.want, got)
 			}
 
 		})

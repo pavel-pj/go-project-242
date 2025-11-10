@@ -1,4 +1,4 @@
-package sizeinformer
+package pathsize
 
 import (
 	"fmt"
@@ -7,24 +7,24 @@ import (
 	"path/filepath"
 )
 
-func GetSize(path string) (string, error) {
+func GetSize(path string) (int64, error) {
 
 	file, err := os.Lstat(path)
 	if err != nil {
-		return "", fmt.Errorf("невозможно открыть файл : %q", path)
+		return 0, fmt.Errorf("невозможно открыть файл : %q", path)
 	}
 
 	if !file.IsDir() {
-		value := formatFileSize(file.Size())
-		return fmt.Sprintf("%s	%s\n", value, path), nil
+		//value := formatFileSize(file.Size())
+		return file.Size(), nil
 	}
 
 	dirSize, err := getDirSize(path)
 	if err != nil {
-		return "", fmt.Errorf("ошибка обхода директории : %q", path)
+		return 0, fmt.Errorf("ошибка обхода директории : %q", path)
 	}
-	dirSizeInfo := formatFileSize(dirSize)
-	return fmt.Sprintf("%s	%s\n", dirSizeInfo, path), nil
+	//dirSizeInfo := formatFileSize(dirSize)
+	return dirSize, nil
 
 }
 
