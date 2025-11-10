@@ -18,7 +18,7 @@ func TestGetSize(t *testing.T) {
 		hasError   bool
 	}{
 		{
-			name:     "test_Br.txt",
+			name:     "test_B.txt",
 			want:     fmt.Sprintf("5B\t%s/test_B.txt\n", currentDir),
 			hasError: false,
 		},
