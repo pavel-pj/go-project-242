@@ -36,9 +36,9 @@ func main() {
 			}
 
 			isHuman := cmd.Bool("human")
-			//isAll := cmd.Bool("all")
+			isAll := cmd.Bool("all")
 
-			size, err := si.GetSize(args[0], isHuman)
+			size, err := si.GetSize(args[0], isHuman, isAll)
 			if err != nil {
 				return err
 			}

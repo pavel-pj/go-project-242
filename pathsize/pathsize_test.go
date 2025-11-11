@@ -16,19 +16,21 @@ func TestGetSizeRealFile(t *testing.T) {
 	currentDir := getTestDataPath()
 
 	cases := []struct {
-		path, want        string
-		isHuman, hasError bool
+		path, want               string
+		isHuman, isAll, hasError bool
 	}{
 		{
 			path:     "test_B.txt",
 			want:     "5B\t/var/www/go1/proj1/go-project-242/testdata/test_B.txt",
 			isHuman:  true,
+			isAll:    true,
 			hasError: false,
 		},
 		{
 			path:     "test_B.txt",
 			want:     "5B\t/var/www/go1/proj1/go-project-242/testdata/test_B.txt",
 			isHuman:  false,
+			isAll:    true,
 			hasError: false,
 		},
 
@@ -36,12 +38,14 @@ func TestGetSizeRealFile(t *testing.T) {
 			path:     "test_KB.txt",
 			want:     "246.7KB\t/var/www/go1/proj1/go-project-242/testdata/test_KB.txt",
 			isHuman:  true,
+			isAll:    true,
 			hasError: false,
 		},
 		{
 			path:     "test_KB.txt",
 			want:     "252570B\t/var/www/go1/proj1/go-project-242/testdata/test_KB.txt",
 			isHuman:  false,
+			isAll:    true,
 			hasError: false,
 		},
 
@@ -49,42 +53,63 @@ func TestGetSizeRealFile(t *testing.T) {
 			path:     "file1.pdf",
 			want:     "4.1MB\t/var/www/go1/proj1/go-project-242/testdata/file1.pdf",
 			isHuman:  true,
+			isAll:    true,
 			hasError: false,
 		},
 		{
 			path:     "file1.pdf",
 			want:     "4307732B\t/var/www/go1/proj1/go-project-242/testdata/file1.pdf",
 			isHuman:  false,
+			isAll:    true,
 			hasError: false,
 		},
 		{
 			path:     "test_MB.pdf",
 			want:     "31.9MB\t/var/www/go1/proj1/go-project-242/testdata/test_MB.pdf",
 			isHuman:  true,
+			isAll:    true,
 			hasError: false,
 		},
 		{
 			path:     "test_MB.pdf",
 			want:     "33478607B\t/var/www/go1/proj1/go-project-242/testdata/test_MB.pdf",
 			isHuman:  false,
+			isAll:    true,
+			hasError: false,
+		},
+		{
+			path:     "dir200",
+			want:     "68.2MB\t/var/www/go1/proj1/go-project-242/testdata/dir200",
+			isHuman:  true,
+			isAll:    true,
+			hasError: false,
+		},
+		{
+			path:     "dir200",
+			want:     "71517521B\t/var/www/go1/proj1/go-project-242/testdata/dir200",
+			isHuman:  false,
+			isAll:    true,
 			hasError: false,
 		},
 		{
 			path:     "dir200",
 			want:     "36.3MB\t/var/www/go1/proj1/go-project-242/testdata/dir200",
 			isHuman:  true,
+			isAll:    false,
 			hasError: false,
 		},
 		{
 			path:     "dir200",
 			want:     "38038914B\t/var/www/go1/proj1/go-project-242/testdata/dir200",
 			isHuman:  false,
+			isAll:    false,
 			hasError: false,
 		},
 		{
 			path:     "f",
 			want:     "yyyFFVDDVB",
 			isHuman:  true,
+			isAll:    true,
 			hasError: true,
 		},
 	}
@@ -94,7 +119,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		t.Run(r.path, func(t *testing.T) {
 
 			path := filepath.Join(currentDir, r.path)
-			got, err := GetSize(path, r.isHuman)
+			got, err := GetSize(path, r.isHuman, r.isAll)
 
 			if r.hasError {
 				require.Error(t, err)
@@ -173,7 +198,7 @@ func TestGetSizeLargeFiles(t *testing.T) {
 				}, nil
 			}
 
-			result, err := GetSize(tt.path, tt.isHuman)
+			result, err := GetSize(tt.path, tt.isHuman, true)
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}

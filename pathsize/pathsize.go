@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 // Переменные для моков при тестировании больших размеров
@@ -14,9 +15,12 @@ var (
 	filepathWalk = filepath.Walk
 )
 
-func GetSize(path string, isHuman bool) (string, error) {
+func GetSize(path string, isHuman, isAll bool) (string, error) {
 
-	size, err := getIntSize(path)
+	//file, _ := osLstat(path)
+	//return strconv.FormatBool(strings.HasPrefix(file.Name(), ".")), nil
+
+	size, err := getIntSize(path, isAll)
 	if err != nil {
 		return "", err
 	}
@@ -26,7 +30,8 @@ func GetSize(path string, isHuman bool) (string, error) {
 
 }
 
-func getIntSize(path string) (uint64, error) {
+func getIntSize(path string, isAll bool) (uint64, error) {
+
 	file, err := osLstat(path)
 	if err != nil {
 		return 0, fmt.Errorf("невозможно открыть файл : %q", path)
@@ -36,7 +41,7 @@ func getIntSize(path string) (uint64, error) {
 		return uint64(file.Size()), nil
 	}
 
-	dirSize, err := getDirSize(path)
+	dirSize, err := getDirSize(path, isAll)
 	if err != nil {
 		return 0, fmt.Errorf("ошибка обхода директории : %q", path)
 	}
@@ -76,7 +81,7 @@ func FormatSize(size uint64, isHuman bool) string {
 	}
 }
 
-func getDirSize(path string) (int64, error) {
+func getDirSize(path string, isAll bool) (int64, error) {
 
 	var totalSize int64
 	err := filepathWalk(path, func(filePath string, info fs.FileInfo, err error) error {
@@ -86,7 +91,10 @@ func getDirSize(path string) (int64, error) {
 		}
 
 		if !info.IsDir() {
-			totalSize += info.Size()
+			if isAll || (!isAll && !strings.HasPrefix(info.Name(), ".")) {
+				totalSize += info.Size()
+			}
+
 		}
 
 		return nil
