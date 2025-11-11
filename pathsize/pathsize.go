@@ -21,12 +21,8 @@ func GetSize(path string, isHuman bool) (string, error) {
 		return "", err
 	}
 
-	if isHuman {
-		return (formatFileSize(size) + "\t" + path), nil
-	}
-
-	result := strconv.FormatUint(size, 10)
-	return (result + "B\t" + path), nil
+	result := FormatSize(size, isHuman)
+	return (result + "\t" + path), nil
 
 }
 
@@ -47,7 +43,11 @@ func getIntSize(path string) (uint64, error) {
 	return uint64(dirSize), nil
 }
 
-func formatFileSize(size uint64) string {
+func FormatSize(size uint64, isHuman bool) string {
+
+	if !isHuman {
+		return strconv.FormatUint(size, 10) + "B"
+	}
 
 	const (
 		KB = 1024

@@ -152,10 +152,13 @@ func TestGetSizeLargeFiles(t *testing.T) {
 
 		{"GB file", "/test.gb", 3 * GB, false, "3221225472B\t/test.gb"},
 		{"GB file", "/test.gb", 3 * GB, true, "3.0GB\t/test.gb"},
+
 		{"TB file", "/test.tb", 2 * TB, false, "2199023255552B\t/test.tb"},
 		{"TB file", "/test.tb", 2 * TB, true, "2.0TB\t/test.tb"},
+
 		{"PB file", "/test.pb", 5 * PB, false, "5629499534213120B\t/test.pb"},
 		{"PB file", "/test.pb", 5 * PB, true, "5.0PB\t/test.pb"},
+
 		{"EB file", "/test.eb", 1 * EB, false, "1152921504606846976B\t/test.eb"},
 		{"EB file", "/test.eb", 2 * EB, true, "2.0EB\t/test.eb"},
 	}
