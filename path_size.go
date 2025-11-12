@@ -23,8 +23,8 @@ func GetPathSize(path string, isRecursive, isHuman, isAll bool) (string, error) 
 	}
 
 	result := FormatSize(size, isHuman)
-	return (result + "\t" + path), nil
-
+	//return (result + "\t" + path), nil
+	return (result), nil
 }
 
 func getIntSize(path string, isAll, isRecursive bool) (uint64, error) {
