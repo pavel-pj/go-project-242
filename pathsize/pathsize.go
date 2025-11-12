@@ -15,12 +15,9 @@ var (
 	filepathWalk = filepath.Walk
 )
 
-func GetSize(path string, isHuman, isAll bool) (string, error) {
+func GetSize(path string, isHuman, isAll, isRecursive bool) (string, error) {
 
-	//file, _ := osLstat(path)
-	//return strconv.FormatBool(strings.HasPrefix(file.Name(), ".")), nil
-
-	size, err := getIntSize(path, isAll)
+	size, err := getIntSize(path, isAll, isRecursive)
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +27,7 @@ func GetSize(path string, isHuman, isAll bool) (string, error) {
 
 }
 
-func getIntSize(path string, isAll bool) (uint64, error) {
+func getIntSize(path string, isAll, isRecursive bool) (uint64, error) {
 
 	file, err := osLstat(path)
 	if err != nil {
@@ -41,7 +38,7 @@ func getIntSize(path string, isAll bool) (uint64, error) {
 		return uint64(file.Size()), nil
 	}
 
-	dirSize, err := getDirSize(path, isAll)
+	dirSize, err := getDirSize(path, isAll, isRecursive)
 	if err != nil {
 		return 0, fmt.Errorf("ошибка обхода директории : %q", path)
 	}
@@ -81,26 +78,57 @@ func FormatSize(size uint64, isHuman bool) string {
 	}
 }
 
-func getDirSize(path string, isAll bool) (int64, error) {
+func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
 
 	var totalSize int64
-	err := filepathWalk(path, func(filePath string, info fs.FileInfo, err error) error {
 
-		if err != nil {
-			return err
-		}
+	//Для рекурсивного обхода
+	if isRecursive {
+		err := filepathWalk(path, func(filePath string, info fs.FileInfo, err error) error {
 
-		if !info.IsDir() {
-			if isAll || (!isAll && !strings.HasPrefix(info.Name(), ".")) {
-				totalSize += info.Size()
+			if err != nil {
+				return err
 			}
 
+			if !info.IsDir() {
+				if isAll || (!isAll && !strings.HasPrefix(info.Name(), ".")) {
+					totalSize += info.Size()
+				}
+
+			}
+
+			return nil
+
+		})
+
+		return totalSize, err
+
+	}
+
+	//Для первого уровня
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return 0, err
+	}
+
+	for _, entry := range entries {
+
+		if entry.IsDir() {
+			continue
+		}
+		info, err := entry.Info()
+
+		if !isAll && strings.HasPrefix(info.Name(), ".") {
+			continue
 		}
 
-		return nil
+		if err != nil {
+			return 0, err
+		}
+		totalSize += info.Size()
 
-	})
+	}
 
-	return totalSize, err
+	return totalSize, nil
 
 }

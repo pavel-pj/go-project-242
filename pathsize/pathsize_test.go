@@ -16,10 +16,11 @@ func TestGetSizeRealFile(t *testing.T) {
 	currentDir := getTestDataPath()
 
 	cases := []struct {
-		path, want               string
-		isHuman, isAll, hasError bool
+		name, path, want                      string
+		isHuman, isAll, isRecursive, hasError bool
 	}{
 		{
+			name:     "simple byte in human",
 			path:     "test_B.txt",
 			want:     "5B\t" + filepath.Join(currentDir, "test_B.txt"),
 			isHuman:  true,
@@ -27,84 +28,150 @@ func TestGetSizeRealFile(t *testing.T) {
 			hasError: false,
 		},
 		{
-			path:     "test_B.txt",
-			want:     "5B\t" + filepath.Join(currentDir, "test_B.txt"),
-			isHuman:  false,
-			isAll:    true,
-			hasError: false,
+			name:        "simple byte",
+			path:        "test_B.txt",
+			want:        "5B\t" + filepath.Join(currentDir, "test_B.txt"),
+			isHuman:     false,
+			isAll:       true,
+			isRecursive: true,
+			hasError:    false,
+		},
+		{
+			name:        "KB in hyman",
+			path:        "test_KB.txt",
+			want:        "246.7KB\t" + filepath.Join(currentDir, "test_KB.txt"),
+			isHuman:     true,
+			isAll:       true,
+			isRecursive: true,
+			hasError:    false,
+		},
+		{
+			name:        "KB in bytes",
+			path:        "test_KB.txt",
+			want:        "252570B\t" + filepath.Join(currentDir, "test_KB.txt"),
+			isHuman:     false,
+			isAll:       true,
+			isRecursive: true,
+			hasError:    false,
 		},
 
 		{
-			path:     "test_KB.txt",
-			want:     "246.7KB\t" + filepath.Join(currentDir, "test_KB.txt"),
-			isHuman:  true,
-			isAll:    true,
-			hasError: false,
+			name:        "MB in human",
+			path:        "file1.pdf",
+			want:        "4.1MB\t" + filepath.Join(currentDir, "file1.pdf"),
+			isHuman:     true,
+			isAll:       true,
+			isRecursive: true,
+			hasError:    false,
 		},
 		{
-			path:     "test_KB.txt",
-			want:     "252570B\t" + filepath.Join(currentDir, "test_KB.txt"),
-			isHuman:  false,
-			isAll:    true,
-			hasError: false,
+			name:        "MB in bytes",
+			path:        "file1.pdf",
+			want:        "4307732B\t" + filepath.Join(currentDir, "file1.pdf"),
+			isHuman:     false,
+			isAll:       true,
+			isRecursive: true,
+			hasError:    false,
+		},
+		{
+			name:        "MB in human",
+			path:        "test_MB.pdf",
+			want:        "31.9MB\t" + filepath.Join(currentDir, "test_MB.pdf"),
+			isHuman:     true,
+			isAll:       true,
+			isRecursive: true,
+			hasError:    false,
+		},
+		{
+			name:        "MB in bytes",
+			path:        "test_MB.pdf",
+			want:        "33478607B\t" + filepath.Join(currentDir, "test_MB.pdf"),
+			isHuman:     false,
+			isAll:       true,
+			isRecursive: true,
+			hasError:    false,
 		},
 
 		{
-			path:     "file1.pdf",
-			want:     "4.1MB\t" + filepath.Join(currentDir, "file1.pdf"),
-			isHuman:  true,
-			isAll:    true,
-			hasError: false,
+			name:        "dir ",
+			path:        "dir200",
+			want:        "38038914B\t" + filepath.Join(currentDir, "dir200"),
+			isHuman:     false,
+			isAll:       false,
+			isRecursive: false,
+			hasError:    false,
 		},
+
 		{
-			path:     "file1.pdf",
-			want:     "4307732B\t" + filepath.Join(currentDir, "file1.pdf"),
-			isHuman:  false,
-			isAll:    true,
-			hasError: false,
+			name:        "dir -human",
+			path:        "dir200",
+			want:        "36.3MB\t" + filepath.Join(currentDir, "dir200"),
+			isHuman:     true,
+			isAll:       false,
+			isRecursive: false,
+			hasError:    false,
 		},
+
 		{
-			path:     "test_MB.pdf",
-			want:     "31.9MB\t" + filepath.Join(currentDir, "test_MB.pdf"),
-			isHuman:  true,
-			isAll:    true,
-			hasError: false,
+			name:        "dir  -all",
+			path:        "dir200",
+			want:        "71517521B\t" + filepath.Join(currentDir, "dir200"),
+			isHuman:     false,
+			isAll:       true,
+			isRecursive: false,
+			hasError:    false,
 		},
+
 		{
-			path:     "test_MB.pdf",
-			want:     "33478607B\t" + filepath.Join(currentDir, "test_MB.pdf"),
-			isHuman:  false,
-			isAll:    true,
-			hasError: false,
+			name:        "dir -H -all",
+			path:        "dir200",
+			want:        "68.2MB\t" + filepath.Join(currentDir, "dir200"),
+			isHuman:     true,
+			isAll:       true,
+			isRecursive: false,
+			hasError:    false,
 		},
+
 		{
-			path:     "dir200",
-			want:     "68.2MB\t" + filepath.Join(currentDir, "dir200"),
-			isHuman:  true,
-			isAll:    true,
-			hasError: false,
+			name:        "dir -r",
+			path:        "dir200",
+			want:        "75825258B\t" + filepath.Join(currentDir, "dir200"),
+			isHuman:     false,
+			isAll:       false,
+			isRecursive: true,
+			hasError:    false,
 		},
+
 		{
-			path:     "dir200",
-			want:     "71517521B\t" + filepath.Join(currentDir, "dir200"),
-			isHuman:  false,
-			isAll:    true,
-			hasError: false,
+			name:        "dir -r -all",
+			path:        "dir200",
+			want:        "142782472B\t" + filepath.Join(currentDir, "dir200"),
+			isHuman:     false,
+			isAll:       true,
+			isRecursive: true,
+			hasError:    false,
 		},
+
 		{
-			path:     "dir200",
-			want:     "36.3MB\t" + filepath.Join(currentDir, "dir200"),
-			isHuman:  true,
-			isAll:    false,
-			hasError: false,
+			name:        "dir -r -H",
+			path:        "dir200",
+			want:        "72.3MB\t" + filepath.Join(currentDir, "dir200"),
+			isHuman:     true,
+			isAll:       false,
+			isRecursive: true,
+			hasError:    false,
 		},
+
 		{
-			path:     "dir200",
-			want:     "38038914B\t" + filepath.Join(currentDir, "dir200"),
-			isHuman:  false,
-			isAll:    false,
-			hasError: false,
+			name:        "dir -r -H -all",
+			path:        "dir200",
+			want:        "136.2MB\t" + filepath.Join(currentDir, "dir200"),
+			isHuman:     true,
+			isAll:       true,
+			isRecursive: true,
+			hasError:    false,
 		},
+
 		{
 			path:     "f",
 			want:     "yyyFFVDDVB",
@@ -119,7 +186,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		t.Run(r.path, func(t *testing.T) {
 
 			path := filepath.Join(currentDir, r.path)
-			got, err := GetSize(path, r.isHuman, r.isAll)
+			got, err := GetSize(path, r.isHuman, r.isAll, r.isRecursive)
 
 			if r.hasError {
 				require.Error(t, err)
@@ -198,7 +265,7 @@ func TestGetSizeLargeFiles(t *testing.T) {
 				}, nil
 			}
 
-			result, err := GetSize(tt.path, tt.isHuman, true)
+			result, err := GetSize(tt.path, tt.isHuman, true, true)
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
