@@ -15,7 +15,7 @@ var (
 	filepathWalk = filepath.Walk
 )
 
-func GetSize(path string, isHuman, isAll, isRecursive bool) (string, error) {
+func GetPathSize(path string, isRecursive, isHuman, isAll bool) (string, error) {
 
 	size, err := getIntSize(path, isAll, isRecursive)
 	if err != nil {
