@@ -218,8 +218,8 @@ func (m *mockFileInfo) Sys() interface{}   { return nil }
 func TestGetSizeLargeFiles(t *testing.T) {
 
 	// Сохраняем оригинальные функции
-	originalLstat = osLstat
-	originalWalk = filepathWalk
+	originalLstat := osLstat
+	originalWalk := filepathWalk
 
 	// Восстанавливаем после теста
 	defer func() {
