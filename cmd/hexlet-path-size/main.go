@@ -1,7 +1,7 @@
 package main
 
 import (
-	si "code/pathsize"
+	si "code/path_size"
 	"context"
 	"fmt"
 	"log"

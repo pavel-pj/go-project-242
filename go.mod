@@ -1,5 +1,7 @@
 module code
 
+replace code => ./
+
 go 1.24
 
 require (
