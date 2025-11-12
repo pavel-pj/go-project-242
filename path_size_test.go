@@ -1,18 +1,18 @@
 package code
 
 import (
+	"io/fs"
+	"os"
+	"path/filepath"
+	"runtime"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetSizeRealFile(t *testing.T) {
 
-	require.Equal(t, 2, 2)
-
-}
-
-/*
 	currentDir := getTestDataPath()
 
 	cases := []struct {
@@ -22,7 +22,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:     "simple byte in human",
 			path:     "test_B.txt",
-			want:     "5B\t" + filepath.Join(currentDir, "test_B.txt"),
+			want:     "5B",
 			isHuman:  true,
 			isAll:    true,
 			hasError: false,
@@ -30,7 +30,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "simple byte",
 			path:        "test_B.txt",
-			want:        "5B\t" + filepath.Join(currentDir, "test_B.txt"),
+			want:        "5B",
 			isHuman:     false,
 			isAll:       true,
 			isRecursive: true,
@@ -39,7 +39,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "KB in hyman",
 			path:        "test_KB.txt",
-			want:        "246.7KB\t" + filepath.Join(currentDir, "test_KB.txt"),
+			want:        "246.7KB",
 			isHuman:     true,
 			isAll:       true,
 			isRecursive: true,
@@ -48,7 +48,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "KB in bytes",
 			path:        "test_KB.txt",
-			want:        "252570B\t" + filepath.Join(currentDir, "test_KB.txt"),
+			want:        "252570B",
 			isHuman:     false,
 			isAll:       true,
 			isRecursive: true,
@@ -58,7 +58,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "MB in human",
 			path:        "file1.pdf",
-			want:        "4.1MB\t" + filepath.Join(currentDir, "file1.pdf"),
+			want:        "4.1MB",
 			isHuman:     true,
 			isAll:       true,
 			isRecursive: true,
@@ -67,7 +67,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "MB in bytes",
 			path:        "file1.pdf",
-			want:        "4307732B\t" + filepath.Join(currentDir, "file1.pdf"),
+			want:        "4307732B",
 			isHuman:     false,
 			isAll:       true,
 			isRecursive: true,
@@ -76,7 +76,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "MB in human",
 			path:        "test_MB.pdf",
-			want:        "31.9MB\t" + filepath.Join(currentDir, "test_MB.pdf"),
+			want:        "31.9MB",
 			isHuman:     true,
 			isAll:       true,
 			isRecursive: true,
@@ -85,7 +85,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "MB in bytes",
 			path:        "test_MB.pdf",
-			want:        "33478607B\t" + filepath.Join(currentDir, "test_MB.pdf"),
+			want:        "33478607B",
 			isHuman:     false,
 			isAll:       true,
 			isRecursive: true,
@@ -95,7 +95,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "dir ",
 			path:        "dir200",
-			want:        "38038914B\t" + filepath.Join(currentDir, "dir200"),
+			want:        "38038914B",
 			isHuman:     false,
 			isAll:       false,
 			isRecursive: false,
@@ -105,7 +105,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "dir -human",
 			path:        "dir200",
-			want:        "36.3MB\t" + filepath.Join(currentDir, "dir200"),
+			want:        "36.3MB",
 			isHuman:     true,
 			isAll:       false,
 			isRecursive: false,
@@ -115,7 +115,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "dir  -all",
 			path:        "dir200",
-			want:        "71517521B\t" + filepath.Join(currentDir, "dir200"),
+			want:        "71517521B",
 			isHuman:     false,
 			isAll:       true,
 			isRecursive: false,
@@ -125,7 +125,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "dir -H -all",
 			path:        "dir200",
-			want:        "68.2MB\t" + filepath.Join(currentDir, "dir200"),
+			want:        "68.2MB",
 			isHuman:     true,
 			isAll:       true,
 			isRecursive: false,
@@ -135,7 +135,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "dir -r",
 			path:        "dir200",
-			want:        "75825258B\t" + filepath.Join(currentDir, "dir200"),
+			want:        "75825258B",
 			isHuman:     false,
 			isAll:       false,
 			isRecursive: true,
@@ -145,7 +145,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "dir -r -all",
 			path:        "dir200",
-			want:        "142782472B\t" + filepath.Join(currentDir, "dir200"),
+			want:        "142782472B",
 			isHuman:     false,
 			isAll:       true,
 			isRecursive: true,
@@ -155,7 +155,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "dir -r -H",
 			path:        "dir200",
-			want:        "72.3MB\t" + filepath.Join(currentDir, "dir200"),
+			want:        "72.3MB",
 			isHuman:     true,
 			isAll:       false,
 			isRecursive: true,
@@ -165,7 +165,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		{
 			name:        "dir -r -H -all",
 			path:        "dir200",
-			want:        "136.2MB\t" + filepath.Join(currentDir, "dir200"),
+			want:        "136.2MB",
 			isHuman:     true,
 			isAll:       true,
 			isRecursive: true,
@@ -186,7 +186,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		t.Run(r.path, func(t *testing.T) {
 
 			path := filepath.Join(currentDir, r.path)
-			got, err := GetPathSize(path,r.isRecursive, r.isHuman, r.isAll)
+			got, err := GetPathSize(path, r.isRecursive, r.isHuman, r.isAll)
 
 			if r.hasError {
 				require.Error(t, err)
@@ -242,17 +242,17 @@ func TestGetSizeLargeFiles(t *testing.T) {
 		expected string
 	}{
 
-		{"GB file", "/test.gb", 3 * GB, false, "3221225472B\t/test.gb"},
-		{"GB file", "/test.gb", 3 * GB, true, "3.0GB\t/test.gb"},
+		{"GB file", "/test.gb", 3 * GB, false, "3221225472B"},
+		{"GB file", "/test.gb", 3 * GB, true, "3.0GB"},
 
-		{"TB file", "/test.tb", 2 * TB, false, "2199023255552B\t/test.tb"},
-		{"TB file", "/test.tb", 2 * TB, true, "2.0TB\t/test.tb"},
+		{"TB file", "/test.tb", 2 * TB, false, "2199023255552B"},
+		{"TB file", "/test.tb", 2 * TB, true, "2.0TB"},
 
-		{"PB file", "/test.pb", 5 * PB, false, "5629499534213120B\t/test.pb"},
-		{"PB file", "/test.pb", 5 * PB, true, "5.0PB\t/test.pb"},
+		{"PB file", "/test.pb", 5 * PB, false, "5629499534213120B"},
+		{"PB file", "/test.pb", 5 * PB, true, "5.0PB"},
 
-		{"EB file", "/test.eb", 1 * EB, false, "1152921504606846976B\t/test.eb"},
-		{"EB file", "/test.eb", 2 * EB, true, "2.0EB\t/test.eb"},
+		{"EB file", "/test.eb", 1 * EB, false, "1152921504606846976B"},
+		{"EB file", "/test.eb", 2 * EB, true, "2.0EB"},
 	}
 
 	for _, tt := range tests {
@@ -265,7 +265,7 @@ func TestGetSizeLargeFiles(t *testing.T) {
 				}, nil
 			}
 
-			result, err := GetPathSize(tt.path,true, tt.isHuman, true )
+			result, err := GetPathSize(tt.path, true, tt.isHuman, true)
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
@@ -290,4 +290,3 @@ func getTestDataPath() string {
 	// Возвращаем путь к testdata
 	return filepath.Join(projectRoot, "testdata")
 }
-*/
