@@ -1,6 +1,5 @@
 module code
 
-replace code => ./
 
 go 1.24
 
