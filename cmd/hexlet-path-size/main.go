@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	si "hexlet-path-size/path_size"
 	"log"
 	"os"
+
+	si "code"
 
 	"github.com/urfave/cli/v3"
 )

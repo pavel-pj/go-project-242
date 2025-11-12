@@ -1,4 +1,4 @@
-package pathsize
+package code
 
 import (
 	"io/fs"
@@ -285,7 +285,7 @@ func getTestDataPath() string {
 	_, filename, _, _ := runtime.Caller(0)
 
 	// Переходим в корень проекта (на два уровня выше от sizeinformer_test.go)
-	projectRoot := filepath.Dir(filepath.Dir(filename))
+	projectRoot := filepath.Dir(filename)
 
 	// Возвращаем путь к testdata
 	return filepath.Join(projectRoot, "testdata")

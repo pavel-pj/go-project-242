@@ -1,4 +1,4 @@
-package pathsize
+package code
 
 import (
 	"fmt"
