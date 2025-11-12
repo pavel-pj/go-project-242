@@ -1,9 +1,9 @@
 package main
 
 import (
-	si "code/path_size"
 	"context"
 	"fmt"
+	si "hexlet-path-size/path_size"
 	"log"
 	"os"
 

@@ -1,7 +1,7 @@
 package tests
 
 import (
-	pathsize "code/path_size"
+	pathsize "hexlet-path-size/path_size"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
