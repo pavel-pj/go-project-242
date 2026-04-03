@@ -9,7 +9,7 @@
  
 
  ## сборка 
- make build
+ make build 
 
 ## запуск
 bin/hexlet-path-size
