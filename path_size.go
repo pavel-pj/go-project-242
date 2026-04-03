@@ -38,6 +38,7 @@ func getIntSize(path string, isAll, isRecursive bool) (uint64, error) {
 	}
 
 	if !file.IsDir() {
+		//nolint:gosec // dirSize всегда неотрицательный, переполнение невозможно
 		return uint64(file.Size()), nil
 	}
 
@@ -45,6 +46,7 @@ func getIntSize(path string, isAll, isRecursive bool) (uint64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("ошибка обхода директории : %q", path)
 	}
+	//nolint:gosec // dirSize всегда неотрицательный, переполнение невозможно
 	return uint64(dirSize), nil
 }
 
@@ -81,8 +83,8 @@ func FormatSize(size uint64, isHuman bool) string {
 	}
 }
 
-//Можно написать так - будет один walk, но я не вижжу смысла.
-//Рекурсивная ффукнция все равно будет пробегать все рекурсивно , проверка одного файла будет дольше
+// Можно написать так - будет один walk, но я не вижжу смысла.
+// Рекурсивная ффукнция все равно будет пробегать все рекурсивно , проверка одного файла будет дольше
 /*
 func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
 	var totalSize int64
@@ -116,7 +118,7 @@ func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
 
 	var totalSize int64
 
-	//Для рекурсивного обхода
+	// Для рекурсивного обхода
 	if isRecursive {
 		err := filepathWalk(path, func(filePath string, info fs.FileInfo, err error) error {
 
@@ -128,21 +130,16 @@ func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
 				if isAll || (!isAll && !strings.HasPrefix(info.Name(), ".")) {
 					totalSize += info.Size()
 				}
-
 			}
-
 			return nil
-
 		})
-
 		return totalSize, err
-
 	}
 
-	//Для первого уровня
+	// Для первого уровня
 	entries, err := os.ReadDir(path)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("ошибка чтения директории %q: %w", path, err)
 	}
 
 	for _, entry := range entries {
@@ -151,18 +148,15 @@ func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
 			continue
 		}
 		info, err := entry.Info()
+		if err != nil {
+			return 0, fmt.Errorf("ошибка получения информации о файле %q: %w", entry.Name(), err)
+		}
 
 		if !isAll && strings.HasPrefix(info.Name(), ".") {
 			continue
 		}
 
-		if err != nil {
-			return 0, err
-		}
 		totalSize += info.Size()
-
 	}
-
 	return totalSize, nil
-
 }

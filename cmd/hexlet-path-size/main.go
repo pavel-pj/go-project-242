@@ -1,7 +1,6 @@
 package main
 
 import (
-	"code"
 	"context"
 	"fmt"
 	"log"
@@ -45,11 +44,10 @@ func main() {
 			isHuman := cmd.Bool("human")
 			isAll := cmd.Bool("all")
 			isRecursive := cmd.Bool("recursive")
-			code.IncludePathInOutput = true
 
 			size, err := si.GetPathSize(args[0], isRecursive, isHuman, isAll)
 			if err != nil {
-				return err
+				return fmt.Errorf("ошибка получения размера для %q: %w", args[0], err)
 			}
 
 			fmt.Printf("%s\t%s\n", size, args[0])

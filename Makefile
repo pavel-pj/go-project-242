@@ -3,8 +3,7 @@
 test:
 	 go test ./... 
 lint:
-	@echo "Running golangci-lint in container..."
-	@docker compose exec -e GOFLAGS="-buildvcs=false" golangci-lint run --timeout=5m ./...
+	golangci-lint run ./...
 
 start:
 	go run cmd/hexlet-path-size/main.go		
