@@ -77,38 +77,46 @@ func FormatSize(size uint64, isHuman bool) string {
 		return fmt.Sprintf("%dB", size)
 	}
 }
-
-// Можно написать так - будет один walk, но я не вижжу смысла.
-// Рекурсивная ффукнция все равно будет пробегать все рекурсивно , проверка одного файла будет дольше
-/*
 func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
+	// Нормализуем путь - убираем завершающий слеш
+	path = strings.TrimSuffix(path, string(os.PathSeparator))
+
 	var totalSize int64
 
 	err := filepathWalk(path, func(filePath string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		// Считаем глубину
-		currentDepth := strings.Count(filePath[len(path):], string(os.PathSeparator))
 
-		// Если не рекурсивно и глубина > 0 - пропускаем
-		// Мы уже внутри самой глубокой папки , просто не суммируем в итог
-		// Кода меньще - а производительность меньше
-		if !isRecursive && currentDepth > 0 {
+		if filePath == path {
+			return nil
+		}
+
+		// Получаем относительный путь
+		relPath := strings.TrimPrefix(filePath, path)
+		// Убираем первый слеш если есть
+		relPath = strings.TrimPrefix(relPath, string(os.PathSeparator))
+
+		// Глубина = количество разделителей в относительном пути
+		depth := strings.Count(relPath, string(os.PathSeparator))
+
+		if !isRecursive && depth > 0 {
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
 			return nil
 		}
+
 		if !info.IsDir() && (isAll || !strings.HasPrefix(info.Name(), ".")) {
 			totalSize += info.Size()
 		}
 		return nil
 	})
+
 	return totalSize, err
 }
-*/
 
+/*
 func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
 
 	var totalSize int64
@@ -155,3 +163,4 @@ func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
 	}
 	return totalSize, nil
 }
+*/
