@@ -1,6 +1,7 @@
 package main
 
 import (
+	"code"
 	"context"
 	"fmt"
 	"log"
@@ -44,14 +45,19 @@ func main() {
 			isHuman := cmd.Bool("human")
 			isAll := cmd.Bool("all")
 			isRecursive := cmd.Bool("recursive")
+			code.IncludePathInOutput = true
 
 			size, err := si.GetPathSize(args[0], isRecursive, isHuman, isAll)
 			if err != nil {
 				return err
 			}
+			fmt.Println(isHuman)
+			if isHuman == true {
+				fmt.Println(size, "\t", args[0], "\n")
+				return nil
+			}
 
 			fmt.Println(size)
-
 			return nil
 		},
 	}

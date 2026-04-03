@@ -15,6 +15,9 @@ var (
 	filepathWalk = filepath.Walk
 )
 
+// переменная отвечающая за форматирования при разных вызовах функции GetPathSize
+var IncludePathInOutput = false
+
 func GetPathSize(path string, isRecursive, isHuman, isAll bool) (string, error) {
 
 	size, err := getIntSize(path, isAll, isRecursive)
@@ -23,8 +26,8 @@ func GetPathSize(path string, isRecursive, isHuman, isAll bool) (string, error) 
 	}
 
 	result := FormatSize(size, isHuman)
-	return (result + "\t" + path), nil
-	//return (result), nil
+
+	return result, nil
 }
 
 func getIntSize(path string, isAll, isRecursive bool) (uint64, error) {
