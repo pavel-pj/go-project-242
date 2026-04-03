@@ -51,13 +51,8 @@ func main() {
 			if err != nil {
 				return err
 			}
-			fmt.Println(isHuman)
-			if isHuman == true {
-				fmt.Println(size, "\t", args[0], "\n")
-				return nil
-			}
 
-			fmt.Println(size)
+			fmt.Printf("%s\t%s\n", size, args[0])
 			return nil
 		},
 	}
