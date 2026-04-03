@@ -275,7 +275,6 @@ func TestGetSizeLargeFiles(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 // getTestDataPath возвращает абсолютный путь к папке testdata

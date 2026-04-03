@@ -24,9 +24,7 @@ func GetPathSize(path string, isRecursive, isHuman, isAll bool) (string, error) 
 	if err != nil {
 		return "", err
 	}
-
 	result := FormatSize(size, isHuman)
-
 	return result, nil
 }
 
@@ -36,7 +34,6 @@ func getIntSize(path string, isAll, isRecursive bool) (uint64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("невозможно открыть файл : %q", path)
 	}
-
 	if !file.IsDir() {
 		//nolint:gosec // dirSize всегда неотрицательный, переполнение невозможно
 		return uint64(file.Size()), nil
@@ -55,7 +52,6 @@ func FormatSize(size uint64, isHuman bool) string {
 	if !isHuman {
 		return strconv.FormatUint(size, 10) + "B"
 	}
-
 	const (
 		KB = 1024
 		MB = KB * 1024
@@ -64,7 +60,6 @@ func FormatSize(size uint64, isHuman bool) string {
 		PB = TB * 1024
 		EB = PB * 1024
 	)
-
 	switch {
 	case size > EB:
 		return fmt.Sprintf("%0.1fEB", float64(size)/float64(EB))
