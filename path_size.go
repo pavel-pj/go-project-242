@@ -1,6 +1,7 @@
 package code
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -11,25 +12,26 @@ import (
 
 // Переменные для моков при тестировании больших размеров
 var (
-	osLstat      = os.Lstat
-	filepathWalk = filepath.Walk
+	osLstat   = os.Lstat
+	osWalkDir = filepath.WalkDir // Используем WalkDir вместо Walk
 )
 
 // переменная отвечающая за форматирования при разных вызовах функции GetPathSize
 var IncludePathInOutput = false
 
+// GetPathSize возвращает общий размер всех файлов в указанном пути.
+// Для директорий рекурсивно обходит все вложенные файлы и папки.
+// Возвращает размер в байтах и ошибку, если путь недоступен.
 func GetPathSize(path string, isRecursive, isHuman, isAll bool) (string, error) {
-
 	size, err := getIntSize(path, isAll, isRecursive)
 	if err != nil {
 		return "", err
 	}
-	result := FormatSize(size, isHuman)
+	result := formatSize(size, isHuman)
 	return result, nil
 }
 
 func getIntSize(path string, isAll, isRecursive bool) (uint64, error) {
-
 	file, err := osLstat(path)
 	if err != nil {
 		return 0, fmt.Errorf("невозможно открыть файл : %q", path)
@@ -47,8 +49,7 @@ func getIntSize(path string, isAll, isRecursive bool) (uint64, error) {
 	return uint64(dirSize), nil
 }
 
-func FormatSize(size uint64, isHuman bool) string {
-
+func formatSize(size uint64, isHuman bool) string {
 	if !isHuman {
 		return strconv.FormatUint(size, 10) + "B"
 	}
@@ -77,13 +78,13 @@ func FormatSize(size uint64, isHuman bool) string {
 		return fmt.Sprintf("%dB", size)
 	}
 }
+
 func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
-	// Нормализуем путь - убираем завершающий слеш
 	path = strings.TrimSuffix(path, string(os.PathSeparator))
-
 	var totalSize int64
+	var walkErr error
 
-	err := filepathWalk(path, func(filePath string, info fs.FileInfo, err error) error {
+	err := osWalkDir(path, func(filePath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -92,26 +93,38 @@ func getDirSize(path string, isAll, isRecursive bool) (int64, error) {
 			return nil
 		}
 
-		// Получаем относительный путь
+		// Получаем относительный путь для проверки глубины
 		relPath := strings.TrimPrefix(filePath, path)
-		// Убираем первый слеш если есть
 		relPath = strings.TrimPrefix(relPath, string(os.PathSeparator))
-
-		// Глубина = количество разделителей в относительном пути
 		depth := strings.Count(relPath, string(os.PathSeparator))
 
+		// Проверка рекурсивности
 		if !isRecursive && depth > 0 {
-			if info.IsDir() {
-				return filepath.SkipDir
+			if d.IsDir() {
+				return fs.SkipDir
 			}
 			return nil
 		}
 
-		if !info.IsDir() && (isAll || !strings.HasPrefix(info.Name(), ".")) {
+		// Проверка на скрытые файлы
+		if !d.IsDir() && (isAll || !strings.HasPrefix(d.Name(), ".")) {
+			info, err := d.Info()
+			if err != nil {
+				// Сохраняем ошибку, но продолжаем обход
+				walkErr = errors.Join(walkErr, fmt.Errorf("не удалось получить info для %s: %w", filePath, err))
+				return nil
+			}
 			totalSize += info.Size()
 		}
+
 		return nil
 	})
 
-	return totalSize, err
+	if err != nil {
+		return totalSize, err
+	}
+	if walkErr != nil {
+		return totalSize, walkErr
+	}
+	return totalSize, nil
 }

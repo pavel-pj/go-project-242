@@ -37,7 +37,7 @@ func TestGetSizeRealFile(t *testing.T) {
 			hasError:    false,
 		},
 		{
-			name:        "KB in hyman",
+			name:        "KB in human",
 			path:        "test_KB.txt",
 			want:        "246.7KB",
 			isHuman:     true,
@@ -113,7 +113,7 @@ func TestGetSizeRealFile(t *testing.T) {
 		},
 
 		{
-			name:        "dir  -all",
+			name:        "dir -all",
 			path:        "dir200",
 			want:        "71517521B",
 			isHuman:     false,
@@ -215,16 +215,34 @@ func (m *mockFileInfo) ModTime() time.Time { return time.Now() }
 func (m *mockFileInfo) IsDir() bool        { return m.isDir }
 func (m *mockFileInfo) Sys() interface{}   { return nil }
 
+// mockDirEntry реализует интерфейс fs.DirEntry для тестирования
+type mockDirEntry struct {
+	name  string
+	size  int64
+	isDir bool
+}
+
+func (m *mockDirEntry) Name() string      { return m.name }
+func (m *mockDirEntry) IsDir() bool       { return m.isDir }
+func (m *mockDirEntry) Type() fs.FileMode { return 0 }
+func (m *mockDirEntry) Info() (fs.FileInfo, error) {
+	return &mockFileInfo{
+		name:  m.name,
+		size:  m.size,
+		isDir: m.isDir,
+	}, nil
+}
+
 func TestGetSizeLargeFiles(t *testing.T) {
 
 	// Сохраняем оригинальные функции
 	originalLstat := osLstat
-	originalWalk := filepathWalk
+	originalWalkDir := osWalkDir
 
 	// Восстанавливаем после теста
 	defer func() {
 		osLstat = originalLstat
-		filepathWalk = originalWalk
+		osWalkDir = originalWalkDir
 	}()
 
 	const (
@@ -257,12 +275,19 @@ func TestGetSizeLargeFiles(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Мокаем osLstat для файлов
 			osLstat = func(path string) (os.FileInfo, error) {
 				return &mockFileInfo{
 					name:  filepath.Base(tt.path),
 					size:  tt.size,
 					isDir: false,
 				}, nil
+			}
+
+			// Мокаем osWalkDir для директорий (не понадобится для файлов)
+			osWalkDir = func(root string, fn fs.WalkDirFunc) error {
+				// Для тестов файлов эта функция не вызывается
+				return nil
 			}
 
 			result, err := GetPathSize(tt.path, true, tt.isHuman, true)
@@ -277,15 +302,110 @@ func TestGetSizeLargeFiles(t *testing.T) {
 	}
 }
 
+// TestGetSizeLargeDirectory тестирует большие директории с использованием моков
+func TestGetSizeLargeDirectory(t *testing.T) {
+	// Сохраняем оригинальные функции
+	originalLstat := osLstat
+	originalWalkDir := osWalkDir
+
+	// Восстанавливаем после теста
+	defer func() {
+		osLstat = originalLstat
+		osWalkDir = originalWalkDir
+	}()
+
+	const (
+		GB = 1024 * 1024 * 1024
+	)
+
+	tests := []struct {
+		name        string
+		dirPath     string
+		files       []mockDirEntry
+		isRecursive bool
+		isAll       bool
+		isHuman     bool
+		expected    string
+	}{
+		{
+			name:    "directory with large files",
+			dirPath: "/testdir",
+			files: []mockDirEntry{
+				{name: "file1.bin", size: 2 * GB, isDir: false},
+				{name: "file2.bin", size: 3 * GB, isDir: false},
+				{name: ".hidden", size: 100, isDir: false},
+			},
+			isRecursive: false,
+			isAll:       false,
+			isHuman:     false,
+			expected:    "5368709120B", // 5GB в байтах
+		},
+		{
+			name:    "directory with hidden files included",
+			dirPath: "/testdir",
+			files: []mockDirEntry{
+				{name: "file1.bin", size: 2 * GB, isDir: false},
+				{name: ".hidden", size: 100, isDir: false},
+			},
+			isRecursive: false,
+			isAll:       true,
+			isHuman:     true,
+			expected:    "2.0GB",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Мокаем osLstat для корневой директории
+			osLstat = func(path string) (os.FileInfo, error) {
+				if path == tt.dirPath {
+					return &mockFileInfo{
+						name:  filepath.Base(tt.dirPath),
+						size:  0,
+						isDir: true,
+					}, nil
+				}
+				return nil, os.ErrNotExist
+			}
+
+			// Мокаем osWalkDir для обхода директории
+			osWalkDir = func(root string, fn fs.WalkDirFunc) error {
+				// Сначала вызываем для корневой директории
+				rootEntry := &mockDirEntry{
+					name:  filepath.Base(root),
+					isDir: true,
+				}
+				if err := fn(root, rootEntry, nil); err != nil {
+					return err
+				}
+
+				// Затем для всех файлов
+				for _, file := range tt.files {
+					if err := fn(filepath.Join(root, file.name), &file, nil); err != nil {
+						return err
+					}
+				}
+				return nil
+			}
+
+			result, err := GetPathSize(tt.dirPath, tt.isRecursive, tt.isHuman, tt.isAll)
+			if err != nil {
+				t.Fatalf("Unexpected error: %v", err)
+			}
+
+			if result != tt.expected {
+				t.Errorf("Expected: %s, Got: %s", tt.expected, result)
+			}
+		})
+	}
+}
+
 // getTestDataPath возвращает абсолютный путь к папке testdata
 func getTestDataPath() string {
-
-	// Получаем путь к текущему файлу (sizeinformer_test.go)
+	// Получаем путь к текущему файлу
 	_, filename, _, _ := runtime.Caller(0)
-
-	// Переходим в корень проекта (на два уровня выше от sizeinformer_test.go)
+	// Переходим в корень проекта
 	projectRoot := filepath.Dir(filename)
-
 	// Возвращаем путь к testdata
 	return filepath.Join(projectRoot, "testdata")
 }
